@@ -1,0 +1,38 @@
+[
+    {
+        "type": "mssql",
+        "name": "logoDb",
+        "host": "192.168.0.2",
+        "port": 1433,
+        "username": "sa",
+        "password": "7981",
+        "database": "LGOLD",
+        "requestTimeout": 1200000,
+        "extra": {
+            "trustServerCertificate": true,
+            "poolSize": 20,
+            "connectionTimeoutMillis": 2000,
+            "query_timeout": 1000,
+            "statement_timeout": 1000
+         }
+   },
+   {
+        "type": "oracle",
+        "name": "ifsDb",
+        "host": "192.168.0.9",
+        "port": 1521,
+        "username": "GGURDERE",
+        "password": "g1441G",
+        "serviceName": "prod",
+        "requestTimeout": 1200000,
+        "entities": [],
+        "synchronize": true,
+        "extra": {
+            "trustServerCertificate": true,
+            "poolSize": 20,
+            "connectionTimeoutMillis": 2000,
+            "query_timeout": 1000,
+            "statement_timeout": 1000
+        }
+    }
+]

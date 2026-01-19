@@ -1,0 +1,148 @@
+{
+    "title": "Satış Raporu (İki tarih arası)",
+    "description": "İki tarih arasındaki satışların raporu",
+    "dataSource": {
+        "connectionName": "logoDb",
+        "query": {
+            "sql": [
+                "SELECT * FROM V_SALES_REPORT sr", 
+                "WHERE sr.SALES_PERSON_ID = :PERSON_ID",
+                "AND sr.CUSTOMER_ID = :CUSTOMER_ID", 
+                "AND sr.INVOICE_DATE >= :BEGIN_DATE", 
+                "AND sr.INVOICE_DATE <= :END_DATE",
+                "ORDER BY INVOICE_DATE"
+            ],
+            "parameters": [
+                {
+                    "id": "PERSON_ID",
+                    "type": "userVariable",
+                    "source": "SALES_PERSON_ID"
+                },
+                {
+                    "id": "CUSTOMER_ID",
+                    "type": "list",
+                    "source": {
+                        "sql": [
+                            "SELECT LOGICALREF as CUSTOMER_ID, DEFINITION_ as CUSTOMER_NAME", 
+                            "WHERE CYPHCODE = :SALES_PERSON_CODE ORDER BY DEFINITION_"
+                        ],
+                        "parameters": [
+                            {
+                                "id": "SALES_PERSON_CODE",
+                                "type": "userVariable"
+                            }
+                        ], 
+                        "key": "CUSTOMER_ID",
+                        "display": "CUSTOMER_NAME"
+                    }
+                },
+                {
+                    "id": "BEGIN_DATE",
+                    "type": "date"
+                },
+                {
+                    "id": "END_DATE",
+                    "type": "date"
+                }
+
+            ]
+        }
+    },
+    "columns": [
+        {
+            "name": "INVOICE_DATE",
+            "header": "Fatura Tarihi",
+            "type": "date",
+            "alignment": "center",
+            "aggrFuncInSum": ""
+        },
+        {
+            "name": "INVOICE_NUMBER",
+            "header": "Fatura Numarası",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "CUSTOMER_NAME",
+            "header": "Müşteri Unvanı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "PRODUCT_NAME",
+            "header": "Ürün Adı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "AMOUNT_KG",
+            "header": "Miktar (Kg)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 0,
+            "aggrFuncInSum": "sum"
+        },
+        {
+            "name": "AMOUNT_TL",
+            "header": "Tutar (TL)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 0,
+            "aggrFuncInSum": "sum",
+            "visible": {
+                "expr": "(auth) => auth > 5",
+                "parameters": [
+                    {
+                        "id": "auth",
+                        "type": "userVariable",
+                        "source": "AUTH"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "UNIT_PRICE_TL",
+            "header": "Birim Fiyat (TL)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 2,
+            "function": {
+                "expr": "(m, t) => m > 0 ? t / m : 0",
+                "parameters": [
+                    {
+                        "id": "m",
+                        "type": "column",
+                        "source": "AMOUNT_KG"
+                    },
+                    {
+                        "id": "t",
+                        "type": "column",
+                        "source": "AMOUNT_TL"
+                    }
+                ]
+            },
+            "aggrFuncInSum": "func",
+            "visible": {
+                "rule": ":AUTH > 5",
+                "parameters": {
+                    "id": "AUTH",
+                    "type": "userVariable"
+                }
+            }
+
+        }
+    ],
+
+    "subReports": [
+        {
+            "id": "product-sales-report",
+            "parameters": [
+                {
+                    "id": "PRODUCT_ID",
+                    "type": "column",
+                    "source": "STOCK_REF"
+                }
+            ]
+        }
+    ]
+}
