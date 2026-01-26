@@ -1,3 +1,8 @@
+export interface UserVariable {
+  variableName: string;
+  variableValue: string;
+}
+
 export class AuthUser {
   constructor(
     public userId: number,
@@ -20,5 +25,20 @@ export class AuthUser {
     public imageUri: string,
     public userProfileId: number,
     public userTypeCode: number,
+    public userVariables: UserVariable[] = [],
   ) {}
+}
+
+/**
+ * Get user variable value by variable name
+ * This is a standalone function because JWT payload comes as plain object, not class instance
+ */
+export function getUserVariableValue(
+  authUser: AuthUser,
+  variableName: string,
+): string | undefined {
+  const variable = authUser.userVariables?.find(
+    (v) => v.variableName === variableName,
+  );
+  return variable?.variableValue;
 }

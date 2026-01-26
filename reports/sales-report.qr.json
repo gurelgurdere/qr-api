@@ -6,7 +6,7 @@
         "query": {
             "sql": [
                 "SELECT * FROM V_SALES_REPORT sr", 
-                "WHERE sr.SALES_PERSON_ID = :PERSON_ID",
+                "WHERE sr.SALES_PERSON_ID = :SALES_PERSON_CODE",
                 "AND sr.CUSTOMER_ID = :CUSTOMER_ID", 
                 "AND sr.INVOICE_DATE >= :BEGIN_DATE", 
                 "AND sr.INVOICE_DATE <= :END_DATE",
@@ -14,9 +14,9 @@
             ],
             "parameters": [
                 {
-                    "id": "PERSON_ID",
+                    "id": "SALES_PERSON_CODE",
                     "type": "userVariable",
-                    "source": "SALES_PERSON_ID"
+                    "source": "ERP_USER_ID"
                 },
                 {
                     "id": "CUSTOMER_ID",
@@ -24,25 +24,30 @@
                     "source": {
                         "sql": [
                             "SELECT LOGICALREF as CUSTOMER_ID, DEFINITION_ as CUSTOMER_NAME", 
+                            "FROM LG_290_CLCARD",
                             "WHERE CYPHCODE = :SALES_PERSON_CODE ORDER BY DEFINITION_"
                         ],
                         "parameters": [
                             {
                                 "id": "SALES_PERSON_CODE",
-                                "type": "userVariable"
+                                "type": "userVariable",
+                                "source": "ERP_USER_ID"
                             }
-                        ], 
-                        "key": "CUSTOMER_ID",
-                        "display": "CUSTOMER_NAME"
-                    }
+                        ] 
+                    },
+                    "key": "CUSTOMER_ID",
+                    "display": "CUSTOMER_NAME",
+                    "description": "Müşteri Seçimi"
                 },
                 {
                     "id": "BEGIN_DATE",
-                    "type": "date"
+                    "type": "date",
+                    "description": "Başlangıç Tarihi"
                 },
                 {
                     "id": "END_DATE",
-                    "type": "date"
+                    "type": "date",
+                    "description": "Bitiş Tarihi"
                 }
 
             ]
@@ -123,13 +128,15 @@
             },
             "aggrFuncInSum": "func",
             "visible": {
-                "rule": ":AUTH > 5",
-                "parameters": {
-                    "id": "AUTH",
-                    "type": "userVariable"
-                }
+                "expr": "(auth) => auth > 5",
+                "parameters": [
+                    {
+                        "id": "auth",
+                        "type": "userVariable",
+                        "source": "AUTH"
+                    }
+                ]
             }
-
         }
     ],
 

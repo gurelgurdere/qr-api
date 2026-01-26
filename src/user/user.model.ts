@@ -1,3 +1,5 @@
+import { Variable } from "src/variable/variable.model";
+
 export interface User {
     userId: number;
     firstName: string;
@@ -16,9 +18,5 @@ export enum UserType {
     FirmUser = 4,
 }
 
-export interface Variable {
-    variableId?: number;
-    variableName: string;
-    variableValue?: string;
-}
+
 

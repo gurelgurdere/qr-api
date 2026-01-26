@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { DatabaseService } from '../database/database.service';
-import { AuthUser } from './auth.model';
+import { AuthUser, UserVariable } from './auth.model';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 
@@ -28,6 +28,11 @@ interface UserRow {
   userTypeCode: number;
 }
 
+interface UserVariableRow {
+  variableName: string;
+  variableValue: string;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -46,7 +51,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const authUser = this.mapToAuthUser(userRow);
+    // Fetch user variables
+    const userVariables = await this.fetchUserVariables(
+      userRow.firmId,
+      userRow.userId,
+    );
+
+    const authUser = this.mapToAuthUser(userRow, userVariables);
     const accessToken = this.generateToken(authUser);
 
     this.logger.log(`User logged in successfully: ${username}`);
@@ -104,7 +115,33 @@ export class AuthService {
     return this.databaseService.queryOne<UserRow>(sql, [username, password]);
   }
 
-  private mapToAuthUser(row: UserRow): AuthUser {
+  private async fetchUserVariables(
+    firmId: number,
+    userId: number,
+  ): Promise<UserVariable[]> {
+    const sql = `
+      SELECT 
+        v.variableName,
+        COALESCE(vv.variableValue, '') AS variableValue
+      FROM qrUserVariable v
+      LEFT JOIN qrUserVariableValue vv 
+        ON vv.userVariableId = v.userVariableId 
+        AND vv.firmUserId = ?
+      WHERE v.firmId = ?
+    `;
+
+    const rows = await this.databaseService.query<UserVariableRow>(sql, [
+      userId,
+      firmId,
+    ]);
+
+    return rows.map((row) => ({
+      variableName: row.variableName,
+      variableValue: row.variableValue || '',
+    }));
+  }
+
+  private mapToAuthUser(row: UserRow, userVariables: UserVariable[]): AuthUser {
     return new AuthUser(
       row.userId,
       row.firmGroupId,
@@ -126,6 +163,7 @@ export class AuthService {
       row.imageUri || '',
       row.userProfileId,
       row.userTypeCode,
+      userVariables,
     );
   }
 
