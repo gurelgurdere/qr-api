@@ -24,6 +24,16 @@ interface NextValues {
   nextPriority: number;
 }
 
+interface ReportMenuItem {
+  menuItemId: number;
+  tr: string;
+  en: string;
+  itemCode: string;
+  itemUri: string;
+  priority: number;
+  active: number;
+}
+
 @Injectable()
 export class MenuService {
   private readonly logger = new Logger(MenuService.name);
@@ -165,6 +175,57 @@ export class MenuService {
       this.logger.error(`Failed to delete menu item: ${error.message}`);
       throw error;
     }
+  }
+
+  async getAllReportMenuItems(): Promise<ReportMenuItem[]> {
+    const sql = `
+      SELECT  
+        mi.menuItemId,
+        (SELECT mia.descr FROM qrMenuItemName mia WHERE mia.menuItemId = mi.menuItemId AND mia.contentLanguageId = ?) AS tr,
+        (SELECT mia.descr FROM qrMenuItemName mia WHERE mia.menuItemId = mi.menuItemId AND mia.contentLanguageId = ?) AS en,
+        mi.itemCode,
+        mi.itemUri,
+        mi.priority,
+        mi.active
+      FROM qrMenuItem mi 
+      WHERE mi.menuGroupId = ?
+      ORDER BY mi.priority
+    `;
+
+    return this.databaseService.query<ReportMenuItem>(sql, [
+      LANG_TR,
+      LANG_EN,
+      REPORTS_MENU_GROUP_ID,
+    ]);
+  }
+
+  async getReportMenuItem(menuItemId: number): Promise<ReportMenuItem> {
+    const sql = `
+      SELECT  
+        mi.menuItemId,
+        (SELECT mia.descr FROM qrMenuItemName mia WHERE mia.menuItemId = mi.menuItemId AND mia.contentLanguageId = ?) AS tr,
+        (SELECT mia.descr FROM qrMenuItemName mia WHERE mia.menuItemId = mi.menuItemId AND mia.contentLanguageId = ?) AS en,
+        mi.itemCode,
+        mi.itemUri,
+        mi.priority,
+        mi.active
+      FROM qrMenuItem mi 
+      WHERE mi.menuItemId = ?
+    `;
+
+    const result = await this.databaseService.queryOne<ReportMenuItem>(sql, [
+      LANG_TR,
+      LANG_EN,
+      menuItemId,
+    ]);
+
+    if (!result) {
+      throw new NotFoundException(
+        `Menu item with id '${menuItemId}' not found`,
+      );
+    }
+
+    return result;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { MenuModule } from './menu/menu.module';
 import { VariableModule } from './variable/variable.module';
+import { ReportPermissionModule } from './report-permission/report-permission.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { VariableModule } from './variable/variable.module';
     UserProfileModule,
     MenuModule,
     VariableModule,
+    ReportPermissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

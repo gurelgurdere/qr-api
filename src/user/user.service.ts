@@ -226,18 +226,24 @@ export class UserService {
 
   private async checkEmailUniqueness(
     email: string,
-    excludeUserId: number | undefined,
+    excludeFirmUserId: number | undefined,
     connection: TransactionConnection,
   ): Promise<void> {
-    let sql = 'SELECT userId FROM qrUser WHERE email = ?';
+    // Note: excludeFirmUserId is firmUserId from qrFirmUser table, not userId from qrUser
+    let sql = `
+      SELECT fu.firmUserId 
+      FROM qrUser u
+      INNER JOIN qrFirmUser fu ON fu.userId = u.userId
+      WHERE u.email = ?
+    `;
     const params: unknown[] = [email];
 
-    if (excludeUserId !== undefined) {
-      sql += ' AND userId != ?';
-      params.push(excludeUserId);
+    if (excludeFirmUserId !== undefined) {
+      sql += ' AND fu.firmUserId != ?';
+      params.push(excludeFirmUserId);
     }
 
-    const existing = await this.databaseService.queryOneWithConnection<{ userId: number }>(
+    const existing = await this.databaseService.queryOneWithConnection<{ firmUserId: number }>(
       sql,
       params,
       connection,

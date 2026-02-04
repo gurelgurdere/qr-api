@@ -52,6 +52,30 @@ export class MenuController {
     };
   }
 
+  @Get('item')
+  async getAllReportMenuItems(): Promise<ApiResponse<any[]>> {
+    const items = await this.menuService.getAllReportMenuItems();
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Report menu items retrieved successfully',
+      data: items,
+    };
+  }
+
+  @Get('item/:id')
+  async getReportMenuItem(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResponse<any>> {
+    const item = await this.menuService.getReportMenuItem(id);
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Report menu item retrieved successfully',
+      data: item,
+    };
+  }
+
   @Post('item')
   async createMenuItem(
     @Body() dto: CreateMenuItemDto,
