@@ -88,8 +88,8 @@ export class MenuService {
         code: String(nextValues.nextItemCode),
         name: dto.tr,
         url: `/report/${dto.reportId}`,
-        iconDesktop: 'caret-forward',
-        iconMobile: 'caret-forward',
+        iconDesktop: 'bi-file-earmark-bar-graph',
+        iconMobile: 'bi-file-earmark-bar-graph',
         type: 1,
         priority: nextValues.nextPriority,
       };
@@ -372,7 +372,7 @@ export class MenuService {
     const sql = `
       INSERT INTO qrMenuItem
       (menuGroupId, itemCode, itemType, itemUri, iconDesktop, iconMobile, priority, active)
-      VALUES (?, ?, 1, ?, 'caret-forward', 'caret-forward', ?, 1)
+      VALUES (?, ?, 1, ?, 'bi-file-earmark-bar-graph', 'bi-file-earmark-bar-graph', ?, 1)
     `;
 
     const result = await this.databaseService.execute(

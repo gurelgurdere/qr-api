@@ -1,0 +1,44 @@
+{
+    "title": "Aktif Kullanıcı Listesi",
+    "description": "Aktif kullanıcıların listesi",
+    "dataSource": {
+        "connectionName": "logoDb",
+        "query": {
+            "sql": [
+                "SELECT * FROM AppUsers WHERE active = 1"
+            ]
+        }
+    },
+    "columns": [
+        {
+            "name": "AppUserId",
+            "header": "Kullanıcı ID",
+            "type": "number",
+            "alignment": "right"
+        },
+        {
+            "name": "Username",
+            "header": "Kullanıcı Adı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "Name",
+            "header": "Adı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "Surname",
+            "header": "Soyadı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "Email",
+            "header": "E-Posta",
+            "type": "string",
+            "alignment": "left"
+        }
+    ]
+}

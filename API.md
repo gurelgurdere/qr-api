@@ -141,8 +141,8 @@ Retrieves menu structure for the authenticated user based on their profile permi
             "code": "20",
             "name": "Satış Raporu",
             "url": "/report/sales-report",
-            "iconDesktop": "caret-forward",
-            "iconMobile": "caret-forward",
+            "iconDesktop": "bi-file-earmark-bar-graph",
+            "iconMobile": "bi-file-earmark-bar-graph",
             "type": 1,
             "priority": 1
           }
@@ -185,8 +185,8 @@ Creates a new report menu item.
     "code": "25",
     "name": "Satış Raporu",
     "url": "/report/sales-report",
-    "iconDesktop": "caret-forward",
-    "iconMobile": "caret-forward",
+    "iconDesktop": "bi-file-earmark-bar-graph",
+    "iconMobile": "bi-file-earmark-bar-graph",
     "type": 1,
     "priority": 5
   }
@@ -1049,7 +1049,14 @@ Executes a report with provided parameters.
         "type": "number",
         "alignment": "right",
         "decimalPlaces": 2,
-        "aggrFuncInSum": "func"
+        "aggrFuncInSum": "func",
+        "function": {
+          "expr": "(m, t) => m > 0 ? t / m : 0",
+          "parameters": [
+            { "id": "m", "type": "column", "source": "AMOUNT_KG" },
+            { "id": "t", "type": "column", "source": "AMOUNT_TL" }
+          ]
+        }
       }
     ],
     "data": [
@@ -1086,10 +1093,11 @@ Executes a report with provided parameters.
 | alignment | string | Text alignment: `left`, `center`, `right` |
 | decimalPlaces | number | (Optional) Decimal places for number type |
 | aggrFuncInSum | string | (Optional) Aggregation function: `sum`, `avg`, `min`, `max`, `func`, `` |
+| function | object | (Optional) Custom column calculation with `expr` (JS arrow function) and `parameters` array |
 
 **Notes:**
 - Columns with `visibility` rules are automatically filtered based on user variables
-- Custom calculated columns (with `function` definitions) are computed server-side
+- Custom calculated columns include `function` definition for client-side aggregation when `aggrFuncInSum` is `func`
 - The `data` array only contains visible columns
 
 **Error Responses:**
