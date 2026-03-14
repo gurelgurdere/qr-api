@@ -86,10 +86,17 @@ export interface ReportLoadResponse {
   parameters?: ReportParameterResponse[];
 }
 
+export interface SubReportResponse {
+  id: string;
+  title: string;
+  parameters: Parameter[];
+}
+
 export interface ReportExecuteResponse {
   reportId: string;
   title: string;
   description: string;
   columns: ReportColumn[];
   data: Array<Record<string, unknown>>;
+  subReports?: SubReportResponse[];
 }

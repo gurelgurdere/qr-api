@@ -1,0 +1,128 @@
+{
+    "title": "Satış Raporu (Fatura Bazında)",
+    "description": "Fatura bazında iki tarih arasındaki satışların raporu",
+    "dataSource": {
+        "connectionName": "logoDb",
+        "query": {
+            "sql": [
+
+                "SELECT ",
+                    "sr.INVOICE_DATE, ",
+                    "sr.INVOICE_NUMBER, ",
+                    "sr.PRODUCT_NAME, ",
+                    "sr.AMOUNT_KG, ",
+                    "sr.AMOUNT_TL ",
+                "FROM ",
+                    "V_SALES_REPORT sr ",
+                "WHERE ",
+                    "sr.SALES_PERSON_ID = :SALES_PERSON_CODE ",
+                    "AND sr.INVOICE_DATE >= :BEGIN_DATE", 
+                    "AND sr.INVOICE_DATE <= :END_DATE ",
+                    "AND sr.CUSTOMER_NAME = :CUSTOMER_NAME ",
+                "ORDER BY ",
+                    "sr.INVOICE_DATE DESC, ",
+                    "sr.INVOICE_NUMBER DESC"
+            ],
+            "parameters": [
+                {
+                    "id": "SALES_PERSON_CODE",
+                    "type": "userVariable",
+                    "source": "ERP_USER_ID"
+                },
+                {
+                    "id": "BEGIN_DATE",
+                    "type": "date",
+                    "description": "Başlangıç Tarihi"
+                },
+                {
+                    "id": "END_DATE",
+                    "type": "date",
+                    "description": "Bitiş Tarihi"
+                },
+                {
+                    "id": "CUSTOMER_NAME",
+                    "type": "column"
+                }
+            ]
+        }
+    },
+    "columns": [
+        {
+            "name": "INVOICE_DATE",
+            "header": "Fatura Tarihi",
+            "type": "date",
+            "alignment": "center"
+        },
+        {
+            "name": "INVOICE_NUMBER",
+            "header": "Fatura Numarası",
+            "type": "string",
+            "alignment": "left"
+        },        
+        {
+            "name": "PRODUCT_NAME",
+            "header": "Ürün Adı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "AMOUNT_KG",
+            "header": "Miktar (Kg)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 0,
+            "aggrFuncInSum": "sum"
+        },
+        {
+            "name": "AMOUNT_TL",
+            "header": "Tutar (TL)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 0,
+            "aggrFuncInSum": "sum",
+            "visible": {
+                "expr": "(auth) => auth > 5",
+                "parameters": [
+                    {
+                        "id": "auth",
+                        "type": "userVariable",
+                        "source": "AUTH"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "UNIT_PRICE_TL",
+            "header": "Birim Fiyat (TL)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 2,
+            "function": {
+                "expr": "(m, t) => m > 0 ? t / m : 0",
+                "parameters": [
+                    {
+                        "id": "m",
+                        "type": "column",
+                        "source": "AMOUNT_KG"
+                    },
+                    {
+                        "id": "t",
+                        "type": "column",
+                        "source": "AMOUNT_TL"
+                    }
+                ]
+            },
+            "aggrFuncInSum": "func",
+            "visible": {
+                "expr": "(auth) => auth > 5",
+                "parameters": [
+                    {
+                        "id": "auth",
+                        "type": "userVariable",
+                        "source": "AUTH"
+                    }
+                ]
+            }
+        }
+    ]
+}

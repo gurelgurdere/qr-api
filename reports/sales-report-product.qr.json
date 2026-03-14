@@ -1,0 +1,128 @@
+{
+    "title": "Satış Raporu (Ürün Bazında)",
+    "description": "Ürün bazında iki tarih arasındaki satışların raporu",
+    "dataSource": {
+        "connectionName": "logoDb",
+        "query": {
+            "sql": [
+                "SELECT ", 
+                    "sr.PRODUCT_NAME, ",
+                    "SUM(sr.AMOUNT_KG) as AMOUNT_KG,  ",
+                    "SUM(sr.AMOUNT_TL) as AMOUNT_TL ",
+                "FROM  ",
+                    "V_SALES_REPORT sr ",
+                "WHERE ",
+                    "sr.SALES_PERSON_ID = :SALES_PERSON_CODE ",
+                    "AND sr.INVOICE_DATE >= :BEGIN_DATE",
+                    "AND sr.INVOICE_DATE <= :END_DATE", 
+                    "AND sr.CUSTOMER_NAME = :CUSTOMER_NAME ",
+                "GROUP BY ",
+                    "sr.PRODUCT_NAME ",
+                "ORDER BY ",
+                    "sr.PRODUCT_NAME"
+
+            ],
+            "parameters": [
+                {
+                    "id": "SALES_PERSON_CODE",
+                    "type": "userVariable",
+                    "source": "ERP_USER_ID"
+                },
+                {
+                    "id": "BEGIN_DATE",
+                    "type": "date",
+                    "description": "Başlangıç Tarihi"
+                },
+                {
+                    "id": "END_DATE",
+                    "type": "date",
+                    "description": "Bitiş Tarihi"
+                },
+                {
+                    "id": "CUSTOMER_NAME",
+                    "type": "column"
+                }
+            ]
+        }
+    },
+    "columns": [
+        {
+            "name": "PRODUCT_NAME",
+            "header": "Ürün Adı",
+            "type": "string",
+            "alignment": "left"
+        },
+        {
+            "name": "AMOUNT_KG",
+            "header": "Miktar (Kg)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 0,
+            "aggrFuncInSum": "sum"
+        },
+        {
+            "name": "AMOUNT_TL",
+            "header": "Tutar (TL)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 0,
+            "aggrFuncInSum": "sum",
+            "visible": {
+                "expr": "(auth) => auth > 5",
+                "parameters": [
+                    {
+                        "id": "auth",
+                        "type": "userVariable",
+                        "source": "AUTH"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "UNIT_PRICE_TL",
+            "header": "Birim Fiyat (TL)",
+            "type": "number",
+            "alignment": "right",
+            "decimalPlaces": 2,
+            "function": {
+                "expr": "(m, t) => m > 0 ? t / m : 0",
+                "parameters": [
+                    {
+                        "id": "m",
+                        "type": "column",
+                        "source": "AMOUNT_KG"
+ },
+                    {
+                        "id": "t",
+                        "type": "column",
+                        "source": "AMOUNT_TL"
+                    }
+                ]
+            },
+            "aggrFuncInSum": "func",
+            "visible": {
+                "expr": "(auth) => auth > 5",
+                "parameters": [
+                    {
+                        "id": "auth",
+                        "type": "userVariable",
+                        "source": "AUTH"
+                    }
+                ]
+            }
+        }
+    ],
+
+    "subReports": [
+        {
+            "id": "sales-report-invoice",
+            "parameters": [
+                {
+                    "id": "PRODUCT_NAME",
+                    "type": "column",
+                    "source": "PRODUCT_NAME"
+                }
+            ]
+        }
+    ]
+}

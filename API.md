@@ -1078,10 +1078,29 @@ Executes a report with provided parameters.
         "AMOUNT_TL": 3470.5,
         "UNIT_PRICE_TL": 17.35
       }
+    ],
+    "subReports": [
+      {
+        "id": "sales-report-product",
+        "title": "Satış Raporu (Ürün Bazında)",
+        "parameters": [
+          { "id": "CUSTOMER_NAME", "type": "column", "source": "CUSTOMER_NAME" }
+        ]
+      }
     ]
   }
 }
 ```
+
+**SubReports Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| id | string | Sub-report identifier (used as `reportId` when executing) |
+| title | string | Sub-report display title (for selection UI when multiple sub-reports exist) |
+| parameters | array | Parameters to extract from the clicked row. Each has `id`, `type` (`column`), and `source` (column name) |
+
+> **Drill-down behavior:** When `subReports` is present, rows are clickable. The frontend collects inherited parameters (from the current execution context) and row-level parameters (from `subReports.parameters`), then calls `POST /report/execute` for the selected sub-report. If `subReports` is absent, the report is a terminal report with no drill-down.
 
 **Column Properties:**
 

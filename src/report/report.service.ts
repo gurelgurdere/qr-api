@@ -16,6 +16,7 @@ import {
   ReportLoadResponse,
   ReportExecuteResponse,
   ReportParameterResponse,
+  SubReportResponse,
 } from './report.model';
 
 @Injectable()
@@ -129,13 +130,22 @@ export class ReportService {
       authUser,
     );
 
-    return {
+    // Resolve sub-reports with titles
+    const subReports = this.resolveSubReports(reportDef);
+
+    const response: ReportExecuteResponse = {
       reportId,
       title: reportDef.title,
       description: reportDef.description,
       columns,
       data: processedData,
     };
+
+    if (subReports.length > 0) {
+      response.subReports = subReports;
+    }
+
+    return response;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -386,6 +396,30 @@ export class ReportService {
       }
 
       return filteredRow;
+    });
+  }
+
+  private resolveSubReports(reportDef: ReportDefinition): SubReportResponse[] {
+    if (!reportDef.subReports || reportDef.subReports.length === 0) {
+      return [];
+    }
+
+    return reportDef.subReports.map((sub) => {
+      let title = sub.id;
+      try {
+        const subReportDef = this.loadReportDefinition(sub.id);
+        title = subReportDef.title;
+      } catch (error) {
+        this.logger.warn(
+          `Failed to load sub-report '${sub.id}' for title resolution: ${error.message}`,
+        );
+      }
+
+      return {
+        id: sub.id,
+        title,
+        parameters: sub.parameters,
+      };
     });
   }
 
